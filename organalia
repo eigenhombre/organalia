@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+JAR="${0%/*}/organalia.jar"
+exec java -jar "$JAR" "$@"
