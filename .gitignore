@@ -1,4 +1,8 @@
-target/
+**/*.pdf
+**/*.tex
+**/*.html
+**/*.org
 .calamansis-history
-.nrepl-port
 .cpcache/
+.nrepl-port
+target/
