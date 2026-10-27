@@ -10,7 +10,45 @@
   (:gen-class)
   (:require [clojure.string :as str]
             [rewrite-clj.node :as n]
-            [rewrite-clj.parser :as p]))
+            [rewrite-clj.parser :refer [parse-string-all]]))
+
+;; ~parse-string-all~ returns a map-like thing (a
+;; "~FormsNode~") with one key: ~:children~.  ~:children~ is a
+;; collection of things: newlines, comments, keywords, seqs, etc.
+
+;; For example, given this example program,
+
+(def example-program "
+
+;; This is my Clojure program
+
+;; There are many like it, but this one is mine.
+;; Or is it?
+
+:a
+
+(def a-form 333)
+")
+
+;; the parse tree generates the following top-level nodes:
+
+(->> example-program
+     parse-string-all
+     :children
+     (map (comp str type))
+     vec)
+
+;;=>
+["class rewrite_clj.node.whitespace.NewlineNode"
+ "class rewrite_clj.node.comment.CommentNode"
+ "class rewrite_clj.node.whitespace.NewlineNode"
+ "class rewrite_clj.node.comment.CommentNode"
+ "class rewrite_clj.node.comment.CommentNode"
+ "class rewrite_clj.node.whitespace.NewlineNode"
+ "class rewrite_clj.node.keyword.KeywordNode"
+ "class rewrite_clj.node.whitespace.NewlineNode"
+ "class rewrite_clj.node.seq.SeqNode"
+ "class rewrite_clj.node.whitespace.NewlineNode"]
 
 ;; Code blocks are slightly uglier in Org Mode, and there are many variations.
 ;; We'll stick with one of the simplest.
@@ -51,26 +89,35 @@
 
 (defn parse-forms-and-comments [source]
   (->> source
-       p/parse-string-all
+       parse-string-all
        n/children
        (reduce process-node [[] []])
        (apply add-paragraphs)))
 
-(defn ->org [forms-and-comments]
-  (str/join "\n"
-            (for [{:keys [paragraphs form-string]} forms-and-comments
-                  :when (or (seq paragraphs) form-string)]
-              (str (when (seq paragraphs)
-                     (str (str/join "\n\n" paragraphs) "\n"))
-                   (when form-string
-                     (code-block form-string))))))
+(defn- entry->org [{:keys [paragraphs form-string]}]
+  (not-empty
+   (str (when (seq paragraphs)
+          (str (str/join "\n\n" paragraphs) "\n"))
+        (when form-string
+          (code-block form-string)))))
+
+(defn- base-file-name [file-name]
+  (-> file-name java.io.File. .getName))
+
+(defn- org-preamble [file-name]
+  (format "#+TITLE: ~%s~\n#+OPTIONS: toc:nil num:nil\n"
+          (base-file-name file-name)))
+
+(defn ->org [file-name forms-and-comments]
+  (str (org-preamble file-name)
+       (str/join "\n" (keep entry->org forms-and-comments))))
 
 ;; REPL example parsing this file:
 (comment
   (->> *file*
        slurp
        parse-forms-and-comments
-       ->org
+       (->org *file*)
        (spit "/tmp/output.org")))
 
 ;; Generally, we want to make a ~.org~ file next to the input file:
@@ -87,6 +134,11 @@
     (->> f
          slurp
          parse-forms-and-comments
-         ->org
+         (->org f)
          (spit orgfile))))
 
+(->> *file*
+     slurp
+     parse-forms-and-comments
+     (->org *file*)
+     (spit "/tmp/output.org"))
