@@ -16,3 +16,6 @@ install: all
 	install -d $(BINDIR)
 	install -m 644 $(JAR) $(BINDIR)/organalia.jar
 	install -m 755 organalia $(BINDIR)/organalia
+
+readme:
+	organalia -o README.org src/organalia/main.clj
