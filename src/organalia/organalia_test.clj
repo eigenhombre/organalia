@@ -1,6 +1,6 @@
-(ns organalia.main-test
+(ns organalia.organalia-test
   (:require [clojure.test :refer [testing deftest is are]]
-            [organalia.main :refer :all]))
+            [organalia.organalia :refer :all]))
 
 (deftest parse-forms-and-comments-test
   (testing "single form with no comments"

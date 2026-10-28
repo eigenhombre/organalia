@@ -20,4 +20,4 @@
   (b/uber {:class-dir class-dir
            :uber-file uber-file
            :basis basis
-           :main 'organalia.main}))
+           :main 'organalia.organalia}))

@@ -5,7 +5,7 @@ BINDIR := $(or $(BINDIR),$(HOME)/bin)
 
 all: $(JAR)
 
-$(JAR): deps.edn build.clj src/organalia/main.clj
+$(JAR): deps.edn build.clj src/organalia/organalia.clj
 	clojure -T:build uber
 
 clean:
@@ -18,4 +18,4 @@ install: all
 	install -m 755 organalia $(BINDIR)/organalia
 
 readme:
-	organalia -o README.org src/organalia/main.clj
+	organalia -o README.org src/organalia/organalia.clj
