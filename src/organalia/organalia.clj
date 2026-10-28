@@ -74,10 +74,17 @@
 ;;=>
 "hi\n"
 
-;; Something to put paragraphs into:
-(defrecord Paragraph [s])
+;; Something to put paragraphs into, and make it printable:
+(defrecord Paragraph [s]
+  Object
+  (toString [this] (:s this)))
+
 (defn- make-paragraph [s] (Paragraph. s))
 (defn- paragraph? [x] (instance? Paragraph x))
+
+(str (make-paragraph "hello"))
+;;=>
+"hello"
 
 ;; We carry forward a little state:
 (defn- next-state
@@ -95,10 +102,11 @@
      :else "something else")))
 
 ;; Example so far:
-(next-state (n/comment-node "hi\n")
-            (n/comment-node "there\n"))
+(str
+ (next-state (n/comment-node "hi\n")
+             (n/comment-node "there\n")))
 ;;=>
-"something else"
+"hi\nthere\n"
 
 ;; Code blocks are slightly uglier in Org Mode, and there are many variations.
 ;; We'll stick with one of the simplest.

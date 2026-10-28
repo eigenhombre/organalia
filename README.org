@@ -93,10 +93,12 @@ combined into a single paragraph.
 "hi\n"
 #+END_SRC
 
-Something to put paragraphs into:
+Something to put paragraphs into, and make it printable:
 
 #+BEGIN_SRC
-(defrecord Paragraph [s])
+(defrecord Paragraph [s]
+  Object
+  (toString [this] (:s this)))
 #+END_SRC
 
 
@@ -107,6 +109,17 @@ Something to put paragraphs into:
 
 #+BEGIN_SRC
 (defn- paragraph? [x] (instance? Paragraph x))
+#+END_SRC
+
+
+#+BEGIN_SRC
+(str (make-paragraph "hello"))
+#+END_SRC
+
+=>
+
+#+BEGIN_SRC
+"hello"
 #+END_SRC
 
 We carry forward a little state:
@@ -130,14 +143,15 @@ We carry forward a little state:
 Example so far:
 
 #+BEGIN_SRC
-(next-state (n/comment-node "hi\n")
-            (n/comment-node "there\n"))
+(str
+ (next-state (n/comment-node "hi\n")
+             (n/comment-node "there\n")))
 #+END_SRC
 
 =>
 
 #+BEGIN_SRC
-"something else"
+"hi\nthere\n"
 #+END_SRC
 
 Code blocks are slightly uglier in Org Mode, and there are many variations.
