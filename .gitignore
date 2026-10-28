@@ -1,7 +1,8 @@
-**/*.pdf
-**/*.tex
 **/*.html
 **/*.org
+**/*.pdf
+**/*.tex
+*.jar
 .calamansis-history
 .cpcache/
 .nrepl-port
